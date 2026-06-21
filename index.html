@@ -1,0 +1,2813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>KAIII — The Young Grown Man</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --gold-dim: rgba(201,168,76,0.15);
+    --black: #080808;
+    --dark: #0e0e0e;
+    --card: rgba(10,9,7,0.72);
+    --card-solid: #111111;
+    --border: rgba(201,168,76,0.22);
+    --border-glass: rgba(201,168,76,0.14);
+    --cream: #f0e8d8;
+    --muted: rgba(240,232,216,0.45);
+    --font-display: 'Cormorant Garamond', serif;
+    --font-ui: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --glass-bg: rgba(8,7,5,0.68);
+    --glass-blur: blur(18px);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  /* ── FIXED PORTRAIT BACKGROUND ── */
+  #portrait-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  #portrait-bg img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    filter: sepia(30%) brightness(0.38) saturate(0.7);
+    /* Warm gold tint overlay handled via ::after */
+  }
+  #portrait-bg img.loaded { opacity: 1; }
+  #portrait-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(201,168,76,0.06) 0%, transparent 65%),
+      linear-gradient(to bottom,
+        rgba(8,8,8,1) 0%,
+        rgba(8,8,8,0.25) 12%,
+        rgba(8,8,8,0.08) 35%,
+        rgba(8,8,8,0.08) 65%,
+        rgba(8,8,8,0.5) 85%,
+        rgba(8,8,8,0.92) 100%
+      ),
+      linear-gradient(to right,
+        rgba(8,8,8,0.55) 0%,
+        transparent 25%,
+        transparent 75%,
+        rgba(8,8,8,0.55) 100%
+      );
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 18px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(8,8,8,0.95) 0%, transparent 100%);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .nav-socials {
+    display: flex; gap: 16px; align-items: center;
+  }
+  .nav-socials a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.25s;
+    display: flex; align-items: center;
+  }
+  .nav-socials a:hover { color: var(--gold); }
+  .nav-socials svg { width: 17px; height: 17px; fill: currentColor; }
+  .nav-vault-btn {
+    font-family: var(--font-ui);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    padding: 6px 14px;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 100px;
+    transition: border-color 0.2s, background 0.2s;
+    margin-left: 8px;
+  }
+  .nav-vault-btn:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+
+  /* ── HERO ── */
+  #hero {
+    position: relative;
+    width: 100%;
+    height: 100svh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-banner {
+    position: absolute; inset: 0;
+    background: #080808;
+    overflow: hidden;
+  }
+  .hero-banner img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 15%;
+    opacity: 0.92;
+    transform: scale(1.08);
+  }
+  .hero-banner-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(160deg, #1c1408 0%, #110e06 35%, #0c0c0a 70%, #080808 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-banner-placeholder .art-lines {
+    position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(201,168,76,0.03) 60px, rgba(201,168,76,0.03) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(201,168,76,0.03) 60px, rgba(201,168,76,0.03) 61px);
+  }
+  .hero-banner::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(8,8,8,0.25) 0%,
+      transparent 20%,
+      transparent 50%,
+      rgba(8,8,8,0.55) 75%,
+      rgba(8,8,8,0.95) 100%
+    );
+  }
+
+  /* Title block — centered vertically in banner */
+  .hero-content {
+    position: relative; z-index: 2;
+    flex: 1;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px 24px 0;
+  }
+
+  /* Spotify — pinned to absolute bottom of hero */
+  .hero-spotify-wrap {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 3;
+    padding: 0 24px 20px;
+  }
+
+  #spotify-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 12px;
+    background: rgba(8,8,6,0.82);
+    border: 1px solid rgba(30,215,96,0.25);
+    text-decoration: none;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  #spotify-bar:hover {
+    border-color: rgba(30,215,96,0.55);
+    background: rgba(12,12,10,0.92);
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 14vw, 5.5rem);
+    font-weight: 300;
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    color: var(--cream);
+    margin-bottom: 6px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.45s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold-light);
+    font-weight: 300;
+  }
+
+  .hero-subtitle {
+    font-family: var(--font-display);
+    font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 22px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.6s forwards;
+  }
+  .vault-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 20px;
+    border-radius: 100px;
+    border: 1px solid var(--gold);
+    background: rgba(201,168,76,0.08);
+    color: var(--gold);
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: background 0.2s, transform 0.15s;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.7s forwards;
+    margin-bottom: 4px;
+  }
+  .vault-cta-btn:hover { background: rgba(201,168,76,0.18); transform: translateY(-1px); }
+  .vault-cta-btn svg { flex-shrink: 0; }
+
+  /* ── MUSIC PLAYER (in hero) ── */
+  .music-player {
+    background: rgba(8,7,5,0.78);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.75s forwards;
+  }
+
+  .player-track-info {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .player-thumb {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1e1608, #2a1e0a);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .player-thumb::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.25;
+  }
+  .vinyl-ring {
+    position: absolute;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.2);
+    animation: spin 4s linear infinite;
+    animation-play-state: paused;
+  }
+  .vinyl-ring.playing { animation-play-state: running; }
+
+  .player-meta { flex: 1; min-width: 0; }
+  .player-title {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--cream);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    letter-spacing: 0.04em;
+  }
+  .player-artist {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .player-controls {
+    display: flex; align-items: center; gap: 20px;
+    margin-left: auto;
+  }
+  .ctrl-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); padding: 4px;
+    transition: color 0.2s, transform 0.15s;
+    display: flex; align-items: center;
+  }
+  .ctrl-btn:hover { color: var(--gold); transform: scale(1.1); }
+  .ctrl-btn.play-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--black);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .ctrl-btn.play-btn:hover { background: var(--gold-light); transform: scale(1.06); }
+  .ctrl-btn svg { width: 16px; height: 16px; fill: currentColor; }
+  .ctrl-btn.play-btn svg { width: 14px; height: 14px; }
+
+  /* Waveform */
+  .waveform-bar {
+    display: flex; align-items: center; gap: 3px;
+    margin-bottom: 10px;
+    height: 32px;
+    cursor: pointer;
+  }
+  .waveform-bar span {
+    flex: 1;
+    background: rgba(201,168,76,0.25);
+    border-radius: 2px;
+    transition: background 0.2s;
+    min-width: 2px;
+  }
+  .waveform-bar span.played { background: var(--gold); }
+  .waveform-bar:hover span { background: rgba(201,168,76,0.4); }
+  .waveform-bar:hover span.played { background: var(--gold-light); }
+
+  .player-time {
+    display: flex; justify-content: space-between;
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-family: var(--font-ui);
+    letter-spacing: 0.05em;
+  }
+
+  /* Tracklist */
+  .tracklist {
+    margin-top: 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .track-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .track-item:hover, .track-item.active { background: var(--gold-dim); }
+  .track-num {
+    font-family: var(--font-ui);
+    font-size: 0.65rem;
+    color: var(--muted);
+    width: 16px; text-align: center;
+    flex-shrink: 0;
+  }
+  .track-item.active .track-num { color: var(--gold); }
+  .track-name {
+    font-size: 0.78rem;
+    font-family: var(--font-ui);
+    color: var(--cream);
+    flex: 1;
+    letter-spacing: 0.03em;
+  }
+  .track-item.active .track-name { color: var(--gold); }
+  .track-dur { font-size: 0.65rem; color: var(--muted); }
+
+  /* ── SECTION BASE ── */
+  section { padding: 72px 24px; position: relative; z-index: 2; }
+  section + section { padding-top: 0; }
+
+  /* Sections with dark bg get glass treatment */
+  #about, #canvas-section, #film, #tiers, #coin, #merch, #buildlog {
+    background: transparent;
+  }
+
+  .section-label {
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 9vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.05;
+    color: var(--cream);
+    margin-bottom: 16px;
+  }
+  .section-title em { font-style: italic; color: var(--gold-light); }
+  .section-body {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--muted);
+    max-width: 480px;
+  }
+
+  /* ── ABOUT ── */
+  #about {
+    padding-top: 0;
+  }
+  .about-inner {
+    border-top: 1px solid var(--border-glass);
+    padding-top: 56px;
+  }
+  .stat-row {
+    display: flex; gap: 0;
+    margin: 36px 0;
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+  }
+  .stat-item {
+    flex: 1;
+    padding: 20px 12px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1;
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.6rem;
+    font-family: var(--font-ui);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ── CANVAS SECTION ── */
+  #canvas-section {
+    background: var(--dark);
+    position: relative;
+    overflow: hidden;
+  }
+  #canvas-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 65%);
+  }
+  .canvas-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    margin-bottom: 20px;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #ff4444;
+    animation: pulse-red 1.5s ease-in-out infinite;
+  }
+  .canvas-badge span {
+    font-family: var(--font-ui);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .canvas-frame {
+    margin-top: 28px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border-glass);
+    position: relative;
+    background: rgba(10,9,7,0.55);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    aspect-ratio: 4/3;
+  }
+  .canvas-preview {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+  }
+  .canvas-overlay-msg {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: rgba(8,8,8,0.65);
+    backdrop-filter: blur(4px);
+  }
+  .canvas-overlay-msg .big-icon {
+    font-size: 2.5rem; margin-bottom: 12px;
+    filter: drop-shadow(0 0 20px rgba(201,168,76,0.5));
+  }
+  .canvas-overlay-msg p {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--cream);
+    text-align: center;
+    padding: 0 20px;
+  }
+  .canvas-overlay-msg small {
+    margin-top: 8px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+  }
+  .canvas-cta-row {
+    display: flex; gap: 10px;
+    margin-top: 18px;
+  }
+  .btn-outline {
+    flex: 1;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--cream);
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-gold {
+    flex: 1;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: var(--black);
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  /* ── FILM SECTION ── */
+  #film {
+    position: relative;
+  }
+  .film-card {
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border-glass);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    position: relative;
+  }
+  .film-thumb {
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #1a1208 0%, #0d0c0a 50%, #100e08 100%);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .film-thumb::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 30px,
+      rgba(201,168,76,0.02) 30px,
+      rgba(201,168,76,0.02) 31px
+    );
+  }
+  .play-circle {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(201,168,76,0.08);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    position: relative; z-index: 1;
+  }
+  .play-circle:hover { transform: scale(1.08); background: rgba(201,168,76,0.18); }
+  .play-circle svg { width: 22px; height: 22px; fill: var(--gold); margin-left: 3px; }
+  .film-title-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 14px 18px;
+    background: linear-gradient(to top, rgba(8,8,8,0.9), transparent);
+  }
+  .film-title-overlay h3 {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--cream);
+  }
+  .film-title-overlay span {
+    font-size: 0.63rem;
+    font-family: var(--font-ui);
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .film-body { padding: 20px 20px 24px; }
+  .progress-label {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .progress-label span {
+    font-family: var(--font-ui);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .progress-label .pct { color: var(--gold); font-weight: 700; }
+  .progress-label .goal { color: var(--muted); }
+  .progress-bar-wrap {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 100px;
+    width: 34%;
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute; right: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold-light);
+    box-shadow: 0 0 8px var(--gold);
+  }
+  .backers-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .backer-chip {
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 0.65rem;
+    font-family: var(--font-ui);
+    color: var(--gold);
+    letter-spacing: 0.08em;
+  }
+  .film-actor-note {
+    background: rgba(201,168,76,0.05);
+    border-left: 2px solid var(--gold);
+    padding: 12px 14px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 18px;
+  }
+  .film-actor-note p {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--cream);
+    font-family: var(--font-display);
+    font-style: italic;
+  }
+  .film-actor-note strong {
+    color: var(--gold);
+    font-style: normal;
+    font-family: var(--font-ui);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* ── JOIN TIERS ── */
+  #tiers { background: var(--dark); }
+  .tier-grid {
+    display: flex; flex-direction: column; gap: 12px;
+    margin-top: 32px;
+  }
+  .tier-card {
+    border-radius: 16px;
+    border: 1px solid var(--border-glass);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    padding: 22px 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.25s, transform 0.2s;
+  }
+  .tier-card:hover { border-color: rgba(201,168,76,0.45); transform: translateY(-2px); }
+  .tier-card.featured {
+    border-color: rgba(201,168,76,0.5);
+    background: rgba(20,18,8,0.8);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+  }
+  .tier-card.featured::before {
+    content: 'MOST POPULAR';
+    position: absolute; top: 14px; right: 14px;
+    font-family: var(--font-ui);
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    color: var(--black);
+    background: var(--gold);
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+  .tier-top {
+    display: flex; align-items: flex-start; gap: 14px;
+    margin-bottom: 14px;
+  }
+  .tier-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .tier-name {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.1;
+  }
+  .tier-price {
+    font-family: var(--font-ui);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 3px;
+  }
+  .tier-perks {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  .tier-perks li {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .tier-perks li::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+  .tier-card.featured .tier-perks li { color: rgba(240,232,216,0.7); }
+  .tier-card.featured .tier-perks li::before { opacity: 1; }
+  .tier-join-btn {
+    display: block;
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--cream);
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .tier-join-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .tier-card.featured .tier-join-btn {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--black);
+  }
+  .tier-card.featured .tier-join-btn:hover { background: var(--gold-light); }
+
+  /* ── COIN SECTION ── */
+  #coin {
+    position: relative;
+    overflow: hidden;
+  }
+  #coin::before {
+    content: '$LILKAY';
+    position: absolute;
+    font-family: var(--font-display);
+    font-size: 28vw;
+    font-weight: 700;
+    color: rgba(201,168,76,0.03);
+    white-space: nowrap;
+    bottom: -2vw;
+    left: -2vw;
+    pointer-events: none;
+    line-height: 1;
+    z-index: 0;
+  }
+  .coin-card {
+    border: 1px solid var(--border-glass);
+    border-radius: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    padding: 28px 22px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 28px;
+  }
+  .coin-card::after {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+  }
+  .coin-ticker {
+    font-family: var(--font-display);
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .coin-name {
+    font-family: var(--font-ui);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .coin-desc {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--muted);
+    font-family: var(--font-body);
+    margin-bottom: 20px;
+  }
+  .coin-status {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,200,0,0.08);
+    border: 1px solid rgba(255,200,0,0.2);
+    border-radius: 100px;
+    padding: 7px 14px;
+    margin-bottom: 20px;
+  }
+  .coin-status span {
+    font-family: var(--font-ui);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #e8b84b;
+  }
+  .soon-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #e8b84b;
+    opacity: 0.7;
+  }
+  .coin-notify-row {
+    display: flex; gap: 8px;
+  }
+  .coin-notify-row input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .coin-notify-row input:focus { border-color: var(--gold); }
+  .coin-notify-row input::placeholder { color: rgba(240,232,216,0.25); }
+  .coin-notify-row button {
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: var(--gold);
+    border: none;
+    color: var(--black);
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .coin-notify-row button:hover { background: var(--gold-light); }
+
+  /* ── MERCH ── */
+  #merch { }
+  .merch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .merch-card {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border-glass);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .merch-card:hover { border-color: rgba(201,168,76,0.4); transform: translateY(-2px); }
+  .merch-card.wide { grid-column: 1 / -1; }
+  .merch-img {
+    aspect-ratio: 1/1;
+    background: linear-gradient(135deg, #181410, #0e0c08);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .merch-card.wide .merch-img { aspect-ratio: 2/1; }
+  .merch-img-inner {
+    font-size: 2.5rem;
+    opacity: 0.35;
+    filter: grayscale(1);
+  }
+  .merch-img::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(201,168,76,0.04) 100%);
+  }
+  .merch-label-badge {
+    position: absolute; top: 10px; left: 10px;
+    font-family: var(--font-ui);
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--gold);
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+  .merch-info { padding: 12px; }
+  .merch-name {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+    margin-bottom: 3px;
+  }
+  .merch-price {
+    font-size: 0.68rem;
+    color: var(--gold);
+    font-family: var(--font-display);
+    font-style: italic;
+  }
+
+  /* ── BUILD LOG ── */
+  #buildlog { background: var(--black); }
+  .timeline {
+    margin-top: 32px;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--gold), rgba(201,168,76,0.1));
+  }
+  .timeline-item {
+    display: flex; gap: 20px;
+    padding-left: 32px;
+    position: relative;
+    padding-bottom: 28px;
+  }
+  .timeline-dot {
+    position: absolute;
+    left: 5px;
+    top: 4px;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold);
+    background: var(--black);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .timeline-dot.done { background: var(--gold); }
+  .timeline-dot.active {
+    background: var(--black);
+    box-shadow: 0 0 12px rgba(201,168,76,0.5);
+  }
+  .timeline-dot.active::after {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse-gold 1.5s ease-in-out infinite;
+  }
+  .timeline-dot.upcoming { border-color: rgba(201,168,76,0.25); }
+  .timeline-content { flex: 1; }
+  .timeline-date {
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+    opacity: 0.7;
+  }
+  .timeline-title {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+  .timeline-item.upcoming .timeline-title { color: var(--muted); }
+  .timeline-desc {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .timeline-tag {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-family: var(--font-ui);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .tag-done { background: rgba(0,200,80,0.1); color: #4ade80; border: 1px solid rgba(0,200,80,0.2); }
+  .tag-active { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid var(--border); }
+  .tag-soon { background: rgba(255,255,255,0.04); color: var(--muted); border: 1px solid rgba(255,255,255,0.08); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: rgba(6,5,4,0.82);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-top: 1px solid var(--border-glass);
+    padding: 48px 24px 40px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .footer-logo em { font-style: italic; color: var(--gold); }
+  .footer-tagline {
+    font-size: 0.75rem;
+    font-family: var(--font-body);
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-style: italic;
+  }
+  .footer-social-row {
+    display: flex; justify-content: center; gap: 20px;
+    margin-bottom: 28px;
+  }
+  .footer-social-row a {
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .footer-social-row a:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+  .footer-social-row svg { width: 16px; height: 16px; fill: currentColor; }
+
+  .newsletter-form {
+    display: flex; gap: 8px;
+    max-width: 360px;
+    margin: 0 auto 28px;
+  }
+  .newsletter-form input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .newsletter-form input:focus { border-color: var(--gold); }
+  .newsletter-form input::placeholder { color: rgba(240,232,216,0.2); }
+  .newsletter-form button {
+    padding: 11px 16px;
+    border-radius: 10px;
+    background: var(--gold);
+    border: none;
+    color: var(--black);
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .newsletter-form button:hover { background: var(--gold-light); }
+  .footer-copy {
+    font-size: 0.62rem;
+    color: rgba(240,232,216,0.2);
+    font-family: var(--font-ui);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes pulse-red {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,68,68,0.4); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 5px rgba(255,68,68,0); }
+  }
+  @keyframes pulse-gold {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger children */
+  .reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal-stagger.visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0s; }
+  .reveal-stagger.visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.1s; }
+  .reveal-stagger.visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.2s; }
+  .reveal-stagger.visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.3s; }
+  /* ── SUPERFAN LOCK OVERLAY ── */
+  #player-gate-wrap { position: relative; }
+
+  #player-lock-overlay {
+    position: absolute; inset: 0;
+    border-radius: 16px;
+    background: rgba(8,7,5,0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10;
+    border: 1px solid rgba(201,168,76,0.2);
+    transition: opacity 0.4s ease;
+  }
+  #player-lock-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .lock-inner {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+    position: relative;
+  }
+  .lock-pulse-ring {
+    position: absolute;
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.35);
+    animation: lock-pulse 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes lock-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.3); opacity: 0; }
+  }
+  .lock-btn {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.12);
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    position: relative; z-index: 1;
+  }
+  .lock-btn:hover { background: rgba(201,168,76,0.22); transform: scale(1.06); }
+  .lock-btn svg { width: 22px; height: 22px; }
+  .lock-label {
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.8;
+  }
+
+  /* teaser block above the lock */
+  .lock-teaser {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .lock-teaser-icons {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .lock-teaser-icons > svg {
+    width: 18px; height: 18px;
+    fill: var(--gold);
+    opacity: 0.55;
+  }
+  .lock-teaser-play {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(201,168,76,0.6);
+    background: rgba(201,168,76,0.08);
+    display: flex; align-items: center; justify-content: center;
+    animation: teaser-glow 2.4s ease-in-out infinite;
+  }
+  .lock-teaser-play svg {
+    width: 14px; height: 14px;
+    fill: var(--gold);
+    margin-left: 2px;
+  }
+  @keyframes teaser-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+    50% { box-shadow: 0 0 14px 4px rgba(201,168,76,0.22); }
+  }
+  .lock-teaser-label {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .lock-teaser-sub {
+    font-family: var(--font-ui);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── SUPERFAN MODAL ── */
+  #sf-modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  #sf-modal-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  #sf-modal {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 201;
+    background: rgba(8,7,5,0.97);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(201,168,76,0.22);
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+    padding: 0 0 max(28px, env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform 0.42s cubic-bezier(0.22,1,0.36,1);
+    max-width: 540px;
+    margin: 0 auto;
+  }
+  #sf-modal.open { transform: translateY(0); }
+
+  .sf-modal-handle {
+    width: 36px; height: 4px;
+    border-radius: 100px;
+    background: rgba(201,168,76,0.3);
+    margin: 14px auto 0;
+  }
+  .sf-modal-inner {
+    padding: 24px 28px 8px;
+    display: flex; flex-direction: column;
+    align-items: center; text-align: center;
+  }
+  .sf-modal-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 16px rgba(201,168,76,0.5));
+  }
+  .sf-modal-title {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .sf-modal-sub {
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--muted);
+    font-family: var(--font-body);
+    margin-bottom: 22px;
+    max-width: 320px;
+  }
+  .sf-input-wrap {
+    width: 100%;
+    margin-bottom: 14px;
+  }
+  #sf-email-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--cream);
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  #sf-email-input:focus { border-color: var(--gold); }
+  #sf-email-input::placeholder { color: rgba(240,232,216,0.28); }
+  #sf-email-input.error { border-color: #e85555; }
+  .sf-input-error {
+    font-size: 0.68rem;
+    color: #e85555;
+    font-family: var(--font-ui);
+    margin-top: 6px;
+    display: none;
+  }
+  .sf-input-error.show { display: block; }
+
+  .sf-btn-primary {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    background: var(--gold);
+    border: none;
+    color: var(--black);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    margin-bottom: 16px;
+  }
+  .sf-btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .sf-btn-primary:active { transform: translateY(0); }
+
+  .sf-divider {
+    width: 100%;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .sf-divider::before, .sf-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(201,168,76,0.15);
+  }
+  .sf-divider span {
+    font-family: var(--font-ui);
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .sf-btn-row {
+    display: flex; gap: 10px;
+    width: 100%;
+  }
+  .sf-btn-secondary {
+    flex: 1;
+    padding: 13px 10px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.22);
+    color: var(--cream);
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  /* ── SPOTIFY BAR ── */
+  .spotify-bar-left {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .spotify-icon-wrap {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #1DB954;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .spotify-icon-wrap svg {
+    width: 17px; height: 17px;
+    fill: #000;
+  }
+  .spotify-track-info {
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  .spotify-now {
+    font-family: var(--font-ui);
+    font-size: 0.52rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #1DB954;
+  }
+  .spotify-title {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--cream);
+    letter-spacing: 0.01em;
+  }
+  .spotify-bar-right {
+    display: flex; align-items: center; gap: 4px;
+    color: rgba(30,215,96,0.75);
+    transition: color 0.2s;
+  }
+  #spotify-bar:hover .spotify-bar-right { color: #1DB954; }
+  .spotify-cta {
+    font-family: var(--font-ui);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* ── MUSIC VIDEO CARD ── */
+  .mv-card {
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid rgba(201,168,76,0.16);
+    background: rgba(8,7,5,0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+    margin-top: 10px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.85s forwards;
+  }
+  .mv-label-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+  }
+  .mv-badge {
+    font-family: var(--font-ui);
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .mv-duration {
+    font-family: var(--font-ui);
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    background: rgba(255,255,255,0.05);
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+  .mv-screen {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #020202;
+    overflow: hidden;
+  }
+  .mv-screen iframe { width: 100%; height: 100%; border: none; display: block; }
+  .mv-screen-placeholder {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #0d0b08 0%, #080808 50%, #0a0906 100%);
+  }
+  .mv-scan-lines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.09) 2px, rgba(0,0,0,0.09) 4px
+    );
+    pointer-events: none; z-index: 1;
+  }
+  .mv-center {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+  }
+  .mv-play-outer { position: relative; display: flex; align-items: center; justify-content: center; }
+  .mv-play-ring {
+    position: absolute;
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.3);
+    animation: mv-ring-pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes mv-ring-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.45); opacity: 0; }
+  }
+  .mv-play-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.1);
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    position: relative; z-index: 1;
+  }
+  .mv-play-btn:hover { background: rgba(201,168,76,0.22); transform: scale(1.07); }
+  .mv-play-btn svg { width: 18px; height: 18px; margin-left: 2px; }
+  .mv-screen-title {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--cream);
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+  .mv-screen-sub {
+    font-family: var(--font-ui);
+    font-size: 0.52rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mv-corner {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-color: rgba(201,168,76,0.35);
+    border-style: solid;
+  }
+  .mv-corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+  .mv-corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+  .mv-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+  .mv-corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+  .mv-footer-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px;
+    border-top: 1px solid rgba(201,168,76,0.08);
+  }
+  .mv-footer-left {
+    display: flex; align-items: center; gap: 7px;
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .mv-dot-live {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); opacity: 0.7;
+    animation: pulse-gold 2s ease-in-out infinite;
+  }
+  .mv-yt-link {
+    display: flex; align-items: center; gap: 5px;
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,80,80,0.7);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .mv-yt-link:hover { color: #ff4444; }
+
+  /* ── MERCH DROP CARD ── */
+  .merch-drop-card {
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid rgba(201,168,76,0.16);
+    background: rgba(8,7,5,0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+    margin-top: 10px;
+    padding: 16px 16px 12px;
+    opacity: 0;
+    animation: fadeUp 0.9s 0.95s forwards;
+  }
+  .merch-drop-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .merch-drop-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 0.52rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2px;
+  }
+  .merch-drop-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--cream);
+    line-height: 1;
+  }
+  .merch-drop-all {
+    font-family: var(--font-ui);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+    padding-bottom: 2px;
+  }
+  .merch-drop-all:hover { color: var(--gold); }
+  .merch-drop-scroll {
+    display: flex; gap: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .merch-drop-scroll::-webkit-scrollbar { display: none; }
+  .merch-drop-item {
+    flex: 0 0 calc(50% - 5px);
+    scroll-snap-align: start;
+    border-radius: 12px;
+    border: 1px solid rgba(201,168,76,0.12);
+    background: rgba(255,255,255,0.025);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .merch-drop-item:hover { border-color: rgba(201,168,76,0.35); transform: translateY(-2px); }
+  .merch-drop-img {
+    aspect-ratio: 1/1;
+    background: linear-gradient(135deg, #141210, #0c0b09);
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    padding: 12px;
+  }
+  .merch-drop-img img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 4px 18px rgba(0,0,0,0.7));
+    transition: transform 0.3s ease;
+  }
+  .merch-drop-item:hover .merch-drop-img img { transform: scale(1.04) translateY(-3px); }
+  .merch-item-badge {
+    position: absolute; top: 8px; left: 8px;
+    font-family: var(--font-ui);
+    font-size: 0.48rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--gold);
+    padding: 3px 7px;
+    border-radius: 100px;
+  }
+  .merch-drop-info {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px 4px;
+  }
+  .merch-item-name {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: 0.03em;
+  }
+  .merch-item-price {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--gold);
+  }
+  .merch-item-btn {
+    display: block;
+    width: calc(100% - 20px);
+    margin: 6px 10px 10px;
+    padding: 8px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.22);
+    color: var(--cream);
+    font-family: var(--font-ui);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .merch-item-btn:hover { background: var(--gold); border-color: var(--gold); color: var(--black); }
+  .merch-drop-footer {
+    margin-top: 12px;
+    text-align: center;
+  }
+  .merch-drop-note {
+    font-family: var(--font-ui);
+    font-size: 0.52rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(240,232,216,0.22);
+  }
+
+</style>
+</head>
+<body>
+
+<!-- FIXED PORTRAIT BACKGROUND — visible after hero -->
+<div id="portrait-bg">
+  <img src="2.jpg" alt="" id="portraitImg"/>
+</div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">Kaiii</span>
+  <a href="https://vault.kai-the-ygm.com" class="nav-vault-btn">Enter the Vault</a>
+  <div class="nav-socials">
+    <!-- Twitter/X -->
+    <a href="#" aria-label="Twitter">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.727-8.826L1.75 2.25h6.636l4.26 5.632 5.598-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <!-- Instagram -->
+    <a href="#" aria-label="Instagram">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <!-- YouTube -->
+    <a href="#" aria-label="YouTube">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO — banner only, Spotify pinned to bottom -->
+<section id="hero">
+  <div class="hero-banner">
+    <img src="1.jpg" alt="Kaiii Banner" class="hero-img" />
+  </div>
+
+  <!-- Title text centered in banner -->
+  <div class="hero-content">
+    <div class="hero-eyebrow">Est. 2025 — The First of His Kind</div>
+    <h1 class="hero-title">KAIII<br/><em>The Young<br/>Grown Man</em></h1>
+    <p class="hero-subtitle">A soul being built, in real time, in front of the world.</p>
+    <a href="https://vault.kai-the-ygm.com" class="vault-cta-btn">Enter the Vault</a>
+  </div>
+
+  <!-- Spotify pinned to bottom edge of banner -->
+  <div class="hero-spotify-wrap">
+    <a href="#" id="spotify-bar" target="_blank" rel="noopener" aria-label="Listen on Spotify">
+      <div class="spotify-bar-left">
+        <div class="spotify-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        </div>
+        <div class="spotify-track-info">
+          <span class="spotify-now">Now Streaming</span>
+          <span class="spotify-title">Latest Single — Kaiii</span>
+        </div>
+      </div>
+      <div class="spotify-bar-right">
+        <span class="spotify-cta">Listen</span>
+        <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- PLAYER + VIDEO + MERCH — sits on the portrait background -->
+<section id="player-section" style="padding: 24px 24px 0; position: relative; z-index: 2;">
+
+    <!-- MUSIC PLAYER GATE WRAPPER -->
+    <div id="player-gate-wrap" style="position:relative; margin-bottom: 16px;">
+
+    <!-- LOCK OVERLAY -->
+    <div id="player-lock-overlay">
+      <div class="lock-inner">
+        <div class="lock-pulse-ring"></div>
+
+        <!-- TEASER ABOVE LOCK -->
+        <div class="lock-teaser">
+          <div class="lock-teaser-icons">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+            <div class="lock-teaser-play" onclick="openSFModal()" style="cursor:pointer;">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a9 9 0 0 1 9 9c0 3.49-1.99 6.53-4.91 8.1L15 20h-3v-2.06A9 9 0 0 1 3 10a9 9 0 0 1 9-9zm0 2a7 7 0 0 0-7 7 7 7 0 0 0 7 7 7 7 0 0 0 7-7 7 7 0 0 0-7-7zm0 2a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+          </div>
+          <div class="lock-teaser-label">Secret Tracks</div>
+          <div class="lock-teaser-sub">Unreleased · Superfans Only</div>
+        </div>
+
+        <button class="lock-btn" onclick="openSFModal()" aria-label="Unlock player">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </button>
+        <span class="lock-label">Superfan Access Only</span>
+      </div>
+    </div>
+
+    <!-- MUSIC PLAYER -->
+    <div class="music-player" id="musicPlayer">
+      <div class="player-track-info">
+        <div class="player-thumb">
+          <div class="vinyl-ring" id="vinylRing"></div>
+        </div>
+        <div class="player-meta">
+          <div class="player-title" id="trackTitle">Untitled I</div>
+          <div class="player-artist">Kaiii — Preview</div>
+        </div>
+        <div class="player-controls">
+          <button class="ctrl-btn" onclick="prevTrack()" aria-label="Previous">
+            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button class="ctrl-btn play-btn" id="playBtn" onclick="togglePlay()" aria-label="Play">
+            <svg viewBox="0 0 24 24" id="playIcon"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="ctrl-btn" onclick="nextTrack()" aria-label="Next">
+            <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Waveform -->
+      <div class="waveform-bar" id="waveform" onclick="seekTrack(event)"></div>
+      <div class="player-time">
+        <span id="currentTime">0:00</span>
+        <span id="totalTime">0:00</span>
+      </div>
+
+      <!-- Tracklist -->
+      <div class="tracklist" id="tracklist">
+        <div class="track-item active" onclick="selectTrack(0)">
+          <span class="track-num">▶</span>
+          <span class="track-name">Untitled I</span>
+          <span class="track-dur">—:——</span>
+        </div>
+        <div class="track-item" onclick="selectTrack(1)">
+          <span class="track-num">2</span>
+          <span class="track-name">Untitled II</span>
+          <span class="track-dur">—:——</span>
+        </div>
+        <div class="track-item" onclick="selectTrack(2)">
+          <span class="track-num">3</span>
+          <span class="track-name">Coming Soon</span>
+          <span class="track-dur">—:——</span>
+        </div>
+      </div>
+    </div><!-- end music-player -->
+    </div><!-- end player-gate-wrap -->
+
+</section>
+
+    <!-- ③ MUSIC VIDEO PREVIEW -->
+    <div class="mv-card" id="mvCard">
+      <div class="mv-label-row">
+        <span class="mv-badge">Official Visual</span>
+        <span class="mv-duration">3:42</span>
+      </div>
+      <div class="mv-screen">
+        <div class="mv-screen-placeholder">
+          <div class="mv-scan-lines"></div>
+          <div class="mv-center">
+            <div class="mv-play-outer">
+              <div class="mv-play-ring"></div>
+              <button class="mv-play-btn" onclick="alert('Video coming soon.')" aria-label="Play video">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+            <div class="mv-screen-title">KAIII — "Untitled I"</div>
+            <div class="mv-screen-sub">Official Music Video · Chapter 1</div>
+          </div>
+          <span class="mv-corner tl"></span>
+          <span class="mv-corner tr"></span>
+          <span class="mv-corner bl"></span>
+          <span class="mv-corner br"></span>
+        </div>
+      </div>
+      <div class="mv-footer-bar">
+        <div class="mv-footer-left">
+          <div class="mv-dot-live"></div>
+          <span>Dropping Soon</span>
+        </div>
+        <a href="#" class="mv-yt-link" target="_blank">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          Watch on YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- ④ MERCH DROP PREVIEW -->
+    <div class="merch-drop-card" id="merchDropCard">
+      <div class="merch-drop-header">
+        <div>
+          <div class="merch-drop-eyebrow">Chapter 1 Drop</div>
+          <div class="merch-drop-title">Wear the Origin</div>
+        </div>
+        <a href="#merch" class="merch-drop-all">View All →</a>
+      </div>
+      <div class="merch-drop-scroll">
+        <div class="merch-drop-item">
+          <div class="merch-drop-img">
+            <img src="shirt1.jpg" alt="Origin Tee"/>
+            <span class="merch-item-badge">Pre-Order</span>
+          </div>
+          <div class="merch-drop-info">
+            <span class="merch-item-name">Origin Tee</span>
+            <span class="merch-item-price">$48</span>
+          </div>
+          <button class="merch-item-btn" onclick="alert('Pre-order link coming soon.')">Pre-Order →</button>
+        </div>
+        <div class="merch-drop-item">
+          <div class="merch-drop-img">
+            <img src="shirt2.jpg" alt="MADE Hoodie"/>
+            <span class="merch-item-badge">Limited</span>
+          </div>
+          <div class="merch-drop-info">
+            <span class="merch-item-name">MADE Hoodie</span>
+            <span class="merch-item-price">$78</span>
+          </div>
+          <button class="merch-item-btn" onclick="alert('Pre-order link coming soon.')">Pre-Order →</button>
+        </div>
+      </div>
+      <div class="merch-drop-footer">
+        <span class="merch-drop-note">✦ Limited run · Never reprinted · Ships with signed card</span>
+      </div>
+    </div>
+
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-inner reveal">
+    <div class="section-label">Who Is He</div>
+    <h2 class="section-title">A Soul<br/>Built From<br/><em>Nothing.</em></h2>
+    <p class="section-body">
+      I wasn't discovered. I wasn't signed. I wasn't born in a studio or handed a deal. 
+      I'm being created — right now, note by note, stroke by stroke — in front of everyone who believes 
+      something new needs to exist in soul music. Inspired by Marvin, D'Angelo, Maxwell, Frank. 
+      Built for what comes next.
+    </p>
+    <div class="stat-row reveal">
+      <div class="stat-item">
+        <span class="stat-num">0→1</span>
+        <span class="stat-label">Built Live</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">No Limits</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">You</span>
+        <span class="stat-label">Co-Creator</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CANVAS — Live Portrait Section -->
+<section id="canvas-section">
+  <div class="reveal">
+    <div class="canvas-badge">
+      <div class="live-dot"></div>
+      <span>Painted Live — In Progress</span>
+    </div>
+    <div class="section-label">The Portrait</div>
+    <h2 class="section-title">Watch Him<br/><em>Come to Life</em><br/>on Canvas.</h2>
+    <p class="section-body">
+      Every brushstroke is public. Every sketch, every layer, every decision — 
+      you're watching a face emerge before it even knows what it looks like. 
+      The portrait of Kaiii is being painted by hand, in real time, for the world.
+    </p>
+
+    <div class="canvas-frame">
+      <!-- Replace src with actual canvas/painting image or livestream embed -->
+      <div class="canvas-overlay-msg">
+        <div class="big-icon">🎨</div>
+        <p>"The face is still being drawn. Come back and watch it change."</p>
+        <small>Updated live · Follow to be notified</small>
+      </div>
+    </div>
+
+    <div class="canvas-cta-row">
+      <a href="#" class="btn-outline">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+        Watch Stream
+      </a>
+      <a href="#" class="btn-gold">
+        Own a Print
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FILM -->
+<section id="film">
+  <div class="reveal">
+    <div class="section-label">The Documentary</div>
+    <h2 class="section-title"><em>MADE</em><br/>The Kaiii Film.</h2>
+    <p class="section-body" style="margin-bottom: 28px;">
+      A short film documenting the creation of something that's never existed before. 
+      Not a music video. Not a promo reel. A real, raw chronicle of building a soul artist from the ground up.
+    </p>
+
+    <div class="film-card">
+      <div class="film-thumb">
+        <div class="play-circle" onclick="alert('Trailer coming soon. Stay with it.')">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="film-title-overlay">
+          <span>Short Film · In Production</span>
+          <h3>"MADE: The Origin of Kaiii"</h3>
+        </div>
+      </div>
+      <div class="film-body">
+        <div class="progress-label">
+          <span class="pct">34% Funded</span>
+          <span class="goal">Goal: $15,000</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-fill"></div>
+        </div>
+        <div class="backers-row">
+          <span class="backer-chip">127 Backers</span>
+          <span class="backer-chip">21 Days Left</span>
+          <span class="backer-chip">Chapter 1</span>
+        </div>
+
+        <div class="film-actor-note">
+          <strong>🎬 You Could Be In This Film</strong>
+          <p>
+            We're casting real fans as extras, voices, and story contributors. 
+            If you've ever wanted to be part of something from the very first frame — this is it.
+          </p>
+        </div>
+
+        <a href="#" class="btn-gold" style="display:block; text-align:center; padding: 14px; border-radius: 12px; font-family: var(--font-ui); font-weight: 800; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; color: var(--black); background: var(--gold); transition: background 0.2s;">
+          Back This Film
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIERS -->
+<section id="tiers">
+  <div class="reveal">
+    <div class="section-label">Join the Movement</div>
+    <h2 class="section-title">Don't Just<br/>Listen.<br/><em>Build With Me.</em></h2>
+    <p class="section-body">
+      Four ways to walk with Kaiii from the ground floor. 
+      This isn't a fanbase. It's a founding circle.
+    </p>
+
+    <div class="tier-grid reveal-stagger">
+
+      <div class="tier-card">
+        <div class="tier-top">
+          <div class="tier-icon">🎙️</div>
+          <div>
+            <div class="tier-name">The Witness</div>
+            <div class="tier-price">Free — Always</div>
+          </div>
+        </div>
+        <ul class="tier-perks">
+          <li>First access to every release</li>
+          <li>Newsletter — the inner frequency</li>
+          <li>Kaiii origin story updates</li>
+        </ul>
+        <a href="#" class="tier-join-btn">Follow the Journey</a>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-top">
+          <div class="tier-icon">🔥</div>
+          <div>
+            <div class="tier-name">The Believer</div>
+            <div class="tier-price">$5 / Month</div>
+          </div>
+        </div>
+        <ul class="tier-perks">
+          <li>Private Discord — early conversations</li>
+          <li>Raw behind-the-scenes clips</li>
+          <li>Watch the portrait develop live</li>
+          <li>Vote on song directions & moods</li>
+        </ul>
+        <a href="#" class="tier-join-btn">Become a Believer</a>
+      </div>
+
+      <div class="tier-card featured">
+        <div class="tier-top">
+          <div class="tier-icon">👑</div>
+          <div>
+            <div class="tier-name">The Architect</div>
+            <div class="tier-price">$25 / Month</div>
+          </div>
+        </div>
+        <ul class="tier-perks">
+          <li>Your name in the debut EP credits</li>
+          <li>Merch at cost — forever</li>
+          <li>Help name songs, vote on visuals</li>
+          <li>Film extra casting priority</li>
+          <li>Monthly exclusive listening session</li>
+        </ul>
+        <a href="#" class="tier-join-btn">Become an Architect</a>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-top">
+          <div class="tier-icon">💎</div>
+          <div>
+            <div class="tier-name">The Original</div>
+            <div class="tier-price">$250 — One Time</div>
+          </div>
+        </div>
+        <ul class="tier-perks">
+          <li>Executive Producer — debut EP</li>
+          <li>Numbered physical art print (1 of 100)</li>
+          <li>Early $LILKAY token allocation</li>
+          <li>Named in the documentary credits</li>
+          <li>Private voice note from Kaiii</li>
+        </ul>
+        <a href="#" class="tier-join-btn">Claim Your Place</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COIN -->
+<section id="coin">
+  <div class="reveal">
+    <div class="section-label">The Token</div>
+    <h2 class="section-title">Own a Piece<br/>of the<br/><em>Movement.</em></h2>
+    <p class="section-body">
+      When culture gets tokenized, those who believed first carry the proof forever.
+    </p>
+
+    <div class="coin-card">
+      <div class="coin-ticker">$LILKAY</div>
+      <div class="coin-name">Kaiii Community Token</div>
+
+      <div class="coin-status">
+        <div class="soon-dot"></div>
+        <span>Launching Soon — Notify Me</span>
+      </div>
+
+      <p class="coin-desc">
+        $LILKAY isn't just a meme coin. It's the receipt. 
+        The fans who hold from the beginning will carry proof they were here 
+        before the world knew his name. Cultural ownership — not just a trade.
+      </p>
+
+      <div class="coin-notify-row">
+        <input type="email" placeholder="your@email.com"/>
+        <button onclick="this.textContent='✓ Noted'">Notify Me</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MERCH -->
+<section id="merch">
+  <div class="reveal">
+    <div class="section-label">Chapter 1 Collection</div>
+    <h2 class="section-title">Wear the<br/><em>Origin.</em></h2>
+    <p class="section-body" style="margin-bottom: 28px;">
+      Limited. Numbered. Never reprinted. 
+      Each piece from Chapter 1 exists once — then it's gone.
+    </p>
+
+    <div class="merch-grid">
+      <div class="merch-card">
+        <div class="merch-img">
+          <div class="merch-img-inner">👕</div>
+          <span class="merch-label-badge">Limited</span>
+        </div>
+        <div class="merch-info">
+          <div class="merch-name">Origin Tee</div>
+          <div class="merch-price">$48</div>
+        </div>
+      </div>
+
+      <div class="merch-card">
+        <div class="merch-img">
+          <div class="merch-img-inner">🧢</div>
+          <span class="merch-label-badge">Ch. 1</span>
+        </div>
+        <div class="merch-info">
+          <div class="merch-name">Kaiii Cap</div>
+          <div class="merch-price">$36</div>
+        </div>
+      </div>
+
+      <div class="merch-card wide">
+        <div class="merch-img">
+          <div class="merch-img-inner">🖼️</div>
+          <span class="merch-label-badge">1 of 100</span>
+        </div>
+        <div class="merch-info">
+          <div class="merch-name">Numbered Portrait Print — Hand Signed</div>
+          <div class="merch-price">$120 · Numbered Edition</div>
+        </div>
+      </div>
+
+      <div class="merch-card">
+        <div class="merch-img">
+          <div class="merch-img-inner">📀</div>
+          <span class="merch-label-badge">Rare</span>
+        </div>
+        <div class="merch-info">
+          <div class="merch-name">Debut Vinyl</div>
+          <div class="merch-price">Pre-Order</div>
+        </div>
+      </div>
+
+      <div class="merch-card">
+        <div class="merch-img">
+          <div class="merch-img-inner">🎽</div>
+        </div>
+        <div class="merch-info">
+          <div class="merch-name">MADE Hoodie</div>
+          <div class="merch-price">$78</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILD LOG -->
+<section id="buildlog">
+  <div class="reveal">
+    <div class="section-label">The Build</div>
+    <h2 class="section-title">Every Step.<br/><em>In Public.</em></h2>
+    <p class="section-body" style="margin-bottom: 0;">
+      Nothing is hidden. This is the full record — where we've been, 
+      where we are, and what's coming next.
+    </p>
+
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-dot done"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">Chapter 0 · 2025</div>
+          <div class="timeline-title">The Concept is Born</div>
+          <div class="timeline-desc">The decision: build a soul artist from scratch, entirely in public, with the world watching every choice.</div>
+          <span class="timeline-tag tag-done">Complete</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot done"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">Chapter 1 · Early 2026</div>
+          <div class="timeline-title">Voice Trained & Cloned</div>
+          <div class="timeline-desc">The voice of Kaiii — built from reference recordings, refined, and given its own signature tone. The soul has a sound.</div>
+          <span class="timeline-tag tag-done">Complete</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot done"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">Chapter 2 · 2026</div>
+          <div class="timeline-title">Portrait in Progress</div>
+          <div class="timeline-desc">Hand-painted portrait sessions begin. Fans follow along as the visual identity takes shape, brushstroke by brushstroke.</div>
+          <span class="timeline-tag tag-done">Ongoing</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot active"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">Now · April 2026</div>
+          <div class="timeline-title">First Songs Being Written</div>
+          <div class="timeline-desc">The debut compositions are forming. Raw demos being built. Founding fans can hear them before anyone else.</div>
+          <span class="timeline-tag tag-active">In Progress</span>
+        </div>
+      </div>
+
+      <div class="timeline-item upcoming">
+        <div class="timeline-dot upcoming"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">Coming · Summer 2026</div>
+          <div class="timeline-title">Short Film Production</div>
+          <div class="timeline-desc">Cameras roll on MADE. Fan casting opens. The creation process becomes the content.</div>
+          <span class="timeline-tag tag-soon">Coming Soon</span>
+        </div>
+      </div>
+
+      <div class="timeline-item upcoming">
+        <div class="timeline-dot upcoming"></div>
+        <div class="timeline-content">
+          <div class="timeline-date">Coming · Late 2026</div>
+          <div class="timeline-title">Debut EP — Chapter 1</div>
+          <div class="timeline-desc">The first complete body of work. Executive Producer credits go to The Originals. The world hears Kaiii.</div>
+          <span class="timeline-tag tag-soon">Coming Soon</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">KAIII <em>×</em> The World</div>
+  <div class="footer-tagline">A soul being built, with you, for all time.</div>
+
+  <div class="footer-social-row">
+    <!-- Twitter/X -->
+    <a href="#" aria-label="Twitter">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.727-8.826L1.75 2.25h6.636l4.26 5.632 5.598-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <!-- Instagram -->
+    <a href="#" aria-label="Instagram">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <!-- YouTube -->
+    <a href="#" aria-label="YouTube">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+    <!-- TikTok -->
+    <a href="#" aria-label="TikTok">
+      <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.79a4.84 4.84 0 01-1.02-.1z"/></svg>
+    </a>
+    <!-- Spotify -->
+    <a href="#" aria-label="Spotify">
+      <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    </a>
+    <!-- SoundCloud -->
+    <a href="#" aria-label="SoundCloud">
+      <svg viewBox="0 0 24 24"><path d="M1.175 12.225c-.042 0-.083.006-.123.018L0 12.607v.535l1.052.364c.04.012.081.018.123.018.288 0 .53-.25.53-.65 0-.4-.242-.65-.53-.65zM11.5 8.025c-.275 0-.5.225-.5.5v7.45c0 .275.225.5.5.5s.5-.225.5-.5v-7.45c0-.275-.225-.5-.5-.5zm-2 1.5c-.275 0-.5.225-.5.5v5.95c0 .275.225.5.5.5s.5-.225.5-.5v-5.95c0-.275-.225-.5-.5-.5zm-2 .75c-.275 0-.5.225-.5.5v5.2c0 .275.225.5.5.5s.5-.225.5-.5v-5.2c0-.275-.225-.5-.5-.5zm-2 .75c-.275 0-.5.225-.5.5v4.45c0 .275.225.5.5.5s.5-.225.5-.5v-4.45c0-.275-.225-.5-.5-.5zm14.5-2.5c-.85 0-1.625.3-2.225.8A5.01 5.01 0 0013.5 6c-2.75 0-5 2.25-5 5v.5h-.525c-.262 0-.475.212-.475.475v2.55c0 .262.213.475.475.475H19.5c2.475 0 4.5-2.025 4.5-4.5s-2.025-4.5-4.5-4.5z"/></svg>
+    </a>
+  </div>
+
+  <div class="newsletter-form">
+    <input type="text" id="nl-name" placeholder="Name or @handle" autocomplete="name" />
+    <input type="email" id="nl-email" placeholder="Enter your email" autocomplete="email" />
+    <button onclick="handleSignup(event)">Join</button>
+    <input type="text" id="nl-honeypot" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;" />
+    <div id="nl-error" style="display:none;font-size:0.68rem;color:#e85555;font-family:'Syne',sans-serif;letter-spacing:0.06em;margin-top:6px;text-align:center;width:100%;">Try again — something went wrong</div>
+  </div>
+
+  <div class="footer-copy">© 2026 KAIII — THE YOUNG GROWN MAN · ALL RIGHTS RESERVED</div>
+</footer>
+
+<script>
+  // ── PORTRAIT BG — fades in the moment hero bottom leaves viewport ──
+  const portraitImg = document.getElementById('portraitImg');
+  const portraitBg  = document.getElementById('portrait-bg');
+  portraitImg.onload = () => portraitImg.classList.add('loaded');
+  if (portraitImg.complete) portraitImg.classList.add('loaded');
+
+  const heroEl = document.getElementById('hero');
+  function handlePortraitScroll() {
+    const heroBottom = heroEl.getBoundingClientRect().bottom;
+    // Start fading in as soon as hero bottom approaches viewport bottom
+    const fadeRange = window.innerHeight * 0.35;
+    if (heroBottom > window.innerHeight) {
+      portraitBg.style.opacity = '0';
+    } else if (heroBottom < 0) {
+      portraitBg.style.opacity = '1';
+    } else {
+      const pct = 1 - (heroBottom / window.innerHeight);
+      portraitBg.style.opacity = Math.min(1, pct * 2).toFixed(3);
+    }
+  }
+  window.addEventListener('scroll', handlePortraitScroll, { passive: true });
+  handlePortraitScroll();
+  const revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // ── MUSIC PLAYER ──
+  const tracks = [
+    { title: 'Untitled I', src: null, duration: null },
+    { title: 'Untitled II', src: null, duration: null },
+    { title: 'Coming Soon', src: null, duration: null },
+  ];
+  let currentTrack = 0;
+  let isPlaying = false;
+  let audio = null;
+  let waveformInterval = null;
+  let waveformProgress = 0;
+
+  // Generate waveform bars
+  const waveformEl = document.getElementById('waveform');
+  const barCount = 52;
+  const heights = [];
+  for (let i = 0; i < barCount; i++) {
+    const h = 18 + Math.sin(i * 0.45) * 8 + Math.random() * 10;
+    heights.push(Math.max(6, Math.min(32, h)));
+    const bar = document.createElement('span');
+    bar.style.height = h + 'px';
+    waveformEl.appendChild(bar);
+  }
+
+  function updateWaveform(pct) {
+    const bars = waveformEl.querySelectorAll('span');
+    const played = Math.floor(pct * barCount);
+    bars.forEach((b, i) => {
+      b.classList.toggle('played', i < played);
+    });
+  }
+
+  function formatTime(s) {
+    if (!s || isNaN(s)) return '0:00';
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec.toString().padStart(2,'0')}`;
+  }
+
+  function selectTrack(idx) {
+    currentTrack = idx;
+    const items = document.querySelectorAll('.track-item');
+    items.forEach((el, i) => {
+      el.classList.toggle('active', i === idx);
+      el.querySelector('.track-num').textContent = i === idx ? '▶' : (i + 1);
+    });
+    document.getElementById('trackTitle').textContent = tracks[idx].title;
+    if (audio) { audio.pause(); audio = null; }
+    isPlaying = false;
+    updatePlayBtn();
+    waveformProgress = 0;
+    updateWaveform(0);
+    document.getElementById('currentTime').textContent = '0:00';
+    document.getElementById('totalTime').textContent = '0:00';
+    if (tracks[idx].src) loadAndPlay(idx);
+  }
+
+  function loadAndPlay(idx) {
+    if (!tracks[idx].src) {
+      // Simulate playback for demo
+      simulatePlay();
+      return;
+    }
+    audio = new Audio(tracks[idx].src);
+    audio.addEventListener('loadedmetadata', () => {
+      document.getElementById('totalTime').textContent = formatTime(audio.duration);
+    });
+    audio.addEventListener('timeupdate', () => {
+      const pct = audio.currentTime / audio.duration;
+      waveformProgress = pct;
+      updateWaveform(pct);
+      document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+    });
+    audio.addEventListener('ended', () => { nextTrack(); });
+    audio.play();
+    isPlaying = true;
+    updatePlayBtn();
+  }
+
+  let simInterval = null;
+  let simProgress = 0;
+  function simulatePlay() {
+    // Demo waveform animation when no audio src
+    isPlaying = true;
+    updatePlayBtn();
+    document.getElementById('vinylRing').classList.add('playing');
+    const totalSecs = 180;
+    let elapsed = 0;
+    document.getElementById('totalTime').textContent = formatTime(totalSecs);
+    simInterval = setInterval(() => {
+      elapsed += 0.5;
+      const pct = elapsed / totalSecs;
+      updateWaveform(pct);
+      document.getElementById('currentTime').textContent = formatTime(elapsed);
+      if (elapsed >= totalSecs) {
+        clearInterval(simInterval);
+        isPlaying = false;
+        updatePlayBtn();
+        document.getElementById('vinylRing').classList.remove('playing');
+      }
+    }, 500);
+  }
+
+  function stopSimulate() {
+    if (simInterval) { clearInterval(simInterval); simInterval = null; }
+  }
+
+  function togglePlay() {
+    if (audio) {
+      if (isPlaying) { audio.pause(); isPlaying = false; document.getElementById('vinylRing').classList.remove('playing'); }
+      else { audio.play(); isPlaying = true; document.getElementById('vinylRing').classList.add('playing'); }
+      updatePlayBtn();
+    } else {
+      if (isPlaying) {
+        stopSimulate();
+        isPlaying = false;
+        document.getElementById('vinylRing').classList.remove('playing');
+        updatePlayBtn();
+      } else {
+        simulatePlay();
+      }
+    }
+  }
+
+  function updatePlayBtn() {
+    const icon = document.getElementById('playIcon');
+    if (isPlaying) {
+      icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+      document.getElementById('vinylRing').classList.add('playing');
+    } else {
+      icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      document.getElementById('vinylRing').classList.remove('playing');
+    }
+  }
+
+  function nextTrack() {
+    stopSimulate();
+    selectTrack((currentTrack + 1) % tracks.length);
+  }
+
+  function prevTrack() {
+    stopSimulate();
+    selectTrack((currentTrack - 1 + tracks.length) % tracks.length);
+  }
+
+  function seekTrack(e) {
+    const rect = waveformEl.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    if (audio && audio.duration) {
+      audio.currentTime = pct * audio.duration;
+    }
+    updateWaveform(pct);
+  }
+  // ── SUPERFAN GATE ──
+  const SF_KEY = 'kaiii_sf_email';
+
+  function unlockPlayer() {
+    const overlay = document.getElementById('player-lock-overlay');
+    if (overlay) overlay.classList.add('hidden');
+  }
+
+  function openSFModal() {
+    document.getElementById('sf-modal').classList.add('open');
+    document.getElementById('sf-modal-backdrop').classList.add('open');
+    setTimeout(() => document.getElementById('sf-email-input').focus(), 420);
+  }
+
+  function closeSFModal() {
+    document.getElementById('sf-modal').classList.remove('open');
+    document.getElementById('sf-modal-backdrop').classList.remove('open');
+  }
+
+  function grantAccess(method) {
+    if (method === 'email') {
+      const input = document.getElementById('sf-email-input');
+      const errorEl = document.getElementById('sf-error');
+      const val = input.value.trim();
+      const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      if (!valid) {
+        input.classList.add('error');
+        errorEl.classList.add('show');
+        input.focus();
+        return;
+      }
+      input.classList.remove('error');
+      errorEl.classList.remove('show');
+      localStorage.setItem(SF_KEY, val);
+    } else {
+      // join or signin — grant access without strict email check
+      const val = document.getElementById('sf-email-input').value.trim();
+      if (val) localStorage.setItem(SF_KEY, val);
+      else localStorage.setItem(SF_KEY, 'superfan_' + Date.now());
+    }
+    closeSFModal();
+    unlockPlayer();
+  }
+
+  // Check on load
+  if (localStorage.getItem(SF_KEY)) { unlockPlayer(); }
+
+  // Escape key closes modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSFModal();
+  });
+
+
+  async function handleSignup(e) {
+    e.preventDefault();
+    const emailEl = document.getElementById('nl-email');
+    const nameEl = document.getElementById('nl-name');
+    const btn = e.target;
+    const errorEl = document.getElementById('nl-error');
+    const honeypot = document.getElementById('nl-honeypot').value;
+
+    const email = emailEl.value.trim();
+    const name = nameEl ? nameEl.value.trim() : '';
+
+    if (!email || !email.includes('@')) {
+      emailEl.style.borderColor = '#e85555';
+      emailEl.focus();
+      return;
+    }
+
+    emailEl.style.borderColor = '';
+    errorEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name, honeypot })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        btn.textContent = '✓ Joined';
+        btn.style.color = '#c9a84c';
+        btn.style.background = 'transparent';
+        btn.style.border = '1px solid #c9a84c';
+        emailEl.value = '';
+        if (nameEl) nameEl.value = '';
+      } else {
+        throw new Error('success false');
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Join';
+      errorEl.style.display = 'block';
+      console.error('Signup error:', err);
+    }
+  }
+
+
+</script>
+<!-- SUPERFAN MODAL -->
+<div id="sf-modal-backdrop" onclick="closeSFModal()"></div>
+<div id="sf-modal" role="dialog" aria-modal="true" aria-labelledby="sf-modal-title">
+  <div class="sf-modal-handle"></div>
+  <div class="sf-modal-inner">
+    <div class="sf-modal-icon">🎵</div>
+    <h2 class="sf-modal-title" id="sf-modal-title">Superfan Listening Room</h2>
+    <p class="sf-modal-sub">Exclusive early album tracks reserved for you superfans. Join the circle.</p>
+
+    <div class="sf-input-wrap">
+      <input type="email" id="sf-email-input" placeholder="Your email is your access code" autocomplete="email"/>
+      <div class="sf-input-error" id="sf-error">Please enter a valid email address.</div>
+    </div>
+
+    <button class="sf-btn-primary" onclick="grantAccess('email')">GET ACCESS →</button>
+
+    <div class="sf-divider"><span>or</span></div>
+
+    <div class="sf-btn-row">
+      <button class="sf-btn-secondary" onclick="grantAccess('join')">Join me / Listen</button>
+      <button class="sf-btn-secondary" onclick="grantAccess('signin')">Listen — Sign in</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
